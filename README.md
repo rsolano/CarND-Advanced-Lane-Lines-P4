@@ -1,4 +1,5 @@
 # **Advanced Lane Finding Project**
+Ricardo Solano
 
 The goals / steps of this project are the following:
 
@@ -69,7 +70,7 @@ The code for image binary thresholding is contained in the `thresholding.py` mod
 
 My perspective transform code is contained in the `warp()` in lines 16 to 22 of the warp.py module.
 
-The `warp()` function takes an image, source and destination points and returns the warped image as well as the inverse matrix.
+The `warp()` function takes an image, source and destination points and returns the warped image. There the opencv `getPerspectiveTransform()` function generates a transform matrix using the source/destination points. This matrix is then passed to the `warpPerspective()` function which takes care of producing a warped image. 
 
 I manually picked the following source and destination points:
 
@@ -88,7 +89,7 @@ I verified that my perspective transform was working as expected by drawing the 
 
 Then I did some other stuff and fit my lane lines with a 2nd order polynomial kinda like this:
 
-![alt text][image5]
+
 
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 

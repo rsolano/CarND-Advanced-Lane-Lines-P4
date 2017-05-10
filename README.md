@@ -48,7 +48,7 @@ The `cal_undistort()` convenience function takes an image and calculates the dis
 
 #### 1. Provide an example of a distortion-corrected image.
 
-To demonstrate this step, I will describe how I apply the distortion correction to one of the test images like this one:
+The following is a distortion-corrected version of the test2.jpg example image provided in this assignment:
 ![alt text][image2]
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.

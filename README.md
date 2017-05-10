@@ -19,22 +19,16 @@ The goals / steps of this project are the following:
 [image3]: ./output_images/binary_output.jpg "Binary Example"
 [image4]: ./output_images/straight_lines_source.jpg "Warp Example"
 [image5]: ./output_images/straight_lines_destination.jpg "Warp Example"
-
-[image6]: ./examples/color_fit_lines.jpg "Fit Visual"
-[image7]: ./examples/example_output.jpg "Output"
-[video1]: ./project_video.mp4 "Video"
+[image6]: ./output_images/color_fit.png "Fit Visual"
+[image7]: ./output_images/histogram.png "Histogram"
+[image8]: ./output_images/example_output.jpg "Output"
+[image9]: ./output_images/thres_warped_output.png "Thresholded and Perspective Transformed"
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
 
 ### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
 
 ---
-
-### Writeup / README
-
-#### 1. Provide a Writeup / README that includes all the rubric points and how you addressed each one.  You can submit your writeup as markdown or pdf.  [Here](https://github.com/udacity/CarND-Advanced-Lane-Lines/blob/master/writeup_template.md) is a template writeup for this project you can use as a guide and a starting point.  
-
-You're reading it!
 
 ### Camera Calibration
 
@@ -50,7 +44,6 @@ The `cal_undistort()` convenience function takes an image and calculates the dis
 
 ![alt text][image1]
 
-
 ### Pipeline (single images)
 
 #### 1. Provide an example of a distortion-corrected image.
@@ -60,15 +53,17 @@ To demonstrate this step, I will describe how I apply the distortion correction 
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
-My pipeline implementation reuses most code from the classroom lessons and quizzes. The code has been refactored into modules for better readability and facilitate the testing of each step. 
+The code for image binary thresholding is contained in the `thresholding.py` module, lines 4 to 95. In order to generate a binary image I used Sobel, gradient magnitude, gradient direction and S-channel thresholds.
 
-The code for image binary thresholding is contained in the `thresholding.py` module, lines 4 to 95. In order to generate a binary image I used Sobel, gradient magnitude, gradient direction and S-channel thresholds. Here is an example of my output for this step:
+The `bin_thres_img()` function combines all four thresholding methods and outputs the final thresholded binary image.
+
+Here is an example of my output for this step:
 
 ![alt text][image3]
 
 #### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
-My perspective transform code is contained in the `warp()` in lines 16 to 22 of the warp.py module.
+My perspective transform code is contained in the `warp()` function in lines 16 to 22 of the `warp.py` module.
 
 The `warp()` function takes an image, source and destination points and returns the warped image. There the opencv `getPerspectiveTransform()` function generates a transform matrix using the source/destination points. This matrix is then passed to the `warpPerspective()` function which takes care of producing a warped image. 
 
@@ -83,23 +78,40 @@ I manually picked the following source and destination points:
 
 I verified that my perspective transform was working as expected by drawing the source and destination points onto a test image and its warped counterpart to verify that the lines appear parallel in the warped image.
 
-![alt text][image4] ![alt text][image5]
+Original Image             |  Undistorted & Warped Image
+:-------------------------:|:-------------------------:
+![alt text][image4]        | ![alt text][image5]
 
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
-Then I did some other stuff and fit my lane lines with a 2nd order polynomial kinda like this:
+The lane line detection step is performed on a *calibrated, binary thresholded and perspective transformed (bird's-eye view) image* generated using the functions in the previous steps.
+![alt text][image9]
 
+The code for this step lives in the `pipeline.py` module, `lane_fit()` and `faster_lane_fit()` functions in lines 4-138.
+
+Initial lane line detection is done using the *histogram* method: pixel values are added up along the columns in the bottom half of the image. This results in two identifiable peaks which can be used as the base of the lane lines.
+![alt text][image7]
+
+I then use the *sliding window* approach to identify the x,y values for the left and right lane lines and fit a second order polynomial to each set of line pixel positions.
+
+![alt text][image6]
+
+Note: I had trouble getting the lines to display from the binary warped image after plotting.
 
 
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
-I did this in lines # through # in my code in `my_other_file.py`
+The code for this step is in the `calc_curvature()` and `calc_offset()` functions, lines 188 through 239 of the `pipeline.py` module.
+
+The curvature is calculated by converting the lane line pixel values detected to world space and fitting a second order polynomial on the resulting left and right values. Then I use the equation for the radius of the curvature `R=(1+(2Ay+B)*2)*1.5/2A` to get the curvature values for each lane line. The pixel to meter conversion values used are 30/720 meters per pixel in y dimension and 3.7/700 meters per pixel in x dimension.
+
+For the vehicle offset lane calculation I assume the camera is at the center of the image. The lane center is calculated from the detected left and right lane points closest to the vehicle (highest y value). The offset is difference between the camera position and the lane center. The value is also converted to meters using the same scale as in the curvature step.
 
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
-I implemented this step in lines # through # in my code in `yet_another_file.py` in the function `map_lane()`.  Here is an example of my result on a test image:
+I implemented this step in lines 140 through 186 in my code in `pipeline.py` in the function `draw_detection()`.  Here is an example of my result on a test image:
 
-![alt text][image6]
+![alt text][image8]
 
 ---
 
@@ -115,4 +127,4 @@ Here's a [link to my video result](./project_video_out.mp4)
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.  
+My pipeline implementation reuses most code from the classroom lessons and quizzes. The code has been refactored into modules and functions for better readability and resusability and to facilitate the testing of each functionality. Once my pipeline was nearly complete, I had some issues properly detecting lanes from the video at approximately 39 seconds in. I solved this by averaging out the lane fits for the previous 25 frames. Implementing the Line class as suggested in the classroom allowed me to keep a history of lane detection data points. Still additional thresholding would have probably helped better detect the lanes under certain lighting conditions. Possibly L channel thresholding would have improved detection in frames with excessive brightness. Other situations where the pipeline would like fail include the presence of objects in the lane, such as other vehicles, or even lines painted over the original lanes during road works. In order to make the pipeline more robust, additional object detection would need to be baked into the algorithm to allow differentiating lane lines from other elements.

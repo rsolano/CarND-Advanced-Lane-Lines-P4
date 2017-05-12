@@ -195,7 +195,7 @@ def calc_curvature(ploty):
 
     # Define y-value where we want radius of curvature
     # I'll choose the maximum y-value, corresponding to the bottom of the image
-    y_eval = np.max(ploty)
+    y_eval = np.max(ploty) / 2
     left_curverad = ((1 + (2*left_fit[0]*y_eval + left_fit[1])**2)**1.5) / np.absolute(2*left_fit[0])
     right_curverad = ((1 + (2*right_fit[0]*y_eval + right_fit[1])**2)**1.5) / np.absolute(2*right_fit[0])
     if DEBUG:
@@ -240,16 +240,14 @@ def calc_offset(image):
 
 def pipeline(image):
     undist = cal_undistort(image, objpoints, imgpoints)
-    binary_threshold = bin_thres_img(undist)
-    binary_warped, m_inverse = warp(binary_threshold)
-
-    cv2.imwrite('output_images/pipeline_test.jpg', binary_warped)
+    warped, m_inverse = warp(undist)
+    binary_warped = bin_thres_img(warped)
 
     detected = left_line.detected and right_line.detected
     if not detected:
         lane_fit(binary_warped)
     else:
-        success = faster_lane_fit(binary_warped)
+        faster_lane_fit(binary_warped)
 
     return draw_detection(image, binary_warped, m_inverse)
 

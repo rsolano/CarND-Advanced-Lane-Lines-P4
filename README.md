@@ -71,10 +71,10 @@ I manually picked the following source and destination points:
 
 | Source        | Destination   | 
 |:-------------:|:-------------:| 
-| 739, 492      | 980, 0        | 
-| 980, 662      | 980, 662      |
-| 298, 662      | 298, 662      |
-| 534, 492      | 298, 0        |
+| 690, 450      | 1100, 0       | 
+| 1100, 720     | 1100, 720     |
+| 200, 720      | 200, 720      |
+| 590, 450      | 200, 0        |
 
 I verified that my perspective transform was working as expected by drawing the source and destination points onto a test image and its warped counterpart to verify that the lines appear parallel in the warped image.
 
@@ -105,7 +105,7 @@ The code for this step is in the `calc_curvature()` and `calc_offset()` function
 
 The curvature is calculated by converting the lane line pixel values detected to world space and fitting a second order polynomial on the resulting left and right values. Then I use the equation for the radius of the curvature `R=(1+(2Ay+B)*2)*1.5/2A` to get the curvature values for each lane line. The pixel to meter conversion values used are 30/720 meters per pixel in y dimension and 3.7/700 meters per pixel in x dimension.
 
-For the vehicle offset lane calculation I assume the camera is at the center of the image. The lane center is calculated from the detected left and right lane points closest to the vehicle (highest y value). The offset is difference between the camera position and the lane center. The value is also converted to meters using the same scale as in the curvature step.
+For the vehicle offset lane calculation I assume the camera is at the center of the image. The lane center is calculated from the detected left and right lane points closest to the vehicle (highest y value). The offset is the difference between the camera position and the lane center. The value is also converted to meters using the same scale as in the curvature step.
 
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
@@ -127,4 +127,4 @@ Here's a [link to my video result](./project_video_out.mp4)
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-My pipeline implementation reuses most code from the classroom lessons and quizzes. The code has been refactored into modules and functions for better readability and resusability and to facilitate the testing of each functionality. Once my pipeline was nearly complete, I had some issues properly detecting lanes from the video at approximately 39 seconds in. I solved this by averaging out the lane fits for the previous 25 frames. Implementing the Line class as suggested in the classroom allowed me to keep a history of lane detection data points. Still additional thresholding would have probably helped better detect the lanes under certain lighting conditions. Possibly L channel thresholding would have improved detection in frames with excessive brightness. Other situations where the pipeline would like fail include the presence of objects in the lane, such as other vehicles, or even lines painted over the original lanes during road works. In order to make the pipeline more robust, additional object detection would need to be baked into the algorithm to allow differentiating lane lines from other elements.
+My pipeline implementation reuses most code from the classroom lessons and quizzes. The code has been refactored into modules and functions for better readability and reusability and to facilitate the testing of each functionality. Once my pipeline was nearly complete, I had some issues properly detecting lanes from the video at approximately 39 seconds in. I solved this by averaging out the lane fits for the previous 25 frames. Implementing the Line class as suggested in the classroom allowed me to keep a history of lane detection data points. Still additional thresholding would have probably helped better detect the lanes under certain lighting conditions. Possibly L channel thresholding would have improved detection in frames with excessive brightness. Other situations where the pipeline would like fail include the presence of objects in the lane, such as other vehicles, or even lines painted over the original lanes during road works. In order to make the pipeline more robust, additional object detection would need to be baked into the algorithm to allow differentiating lane lines from other elements.
